@@ -168,6 +168,10 @@ export default function HomePage() {
     if (e.target.files && e.target.files.length > 0) {
       addFilesToQueue(e.target.files);
     }
+    // Reset input value so the same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   // Remove file from the queue
@@ -417,6 +421,7 @@ export default function HomePage() {
                 accept=".pdf"
                 className="hidden"
                 onChange={handleFileInputChange}
+                onClick={(e) => e.stopPropagation()}
               />
               
               <div className="bg-slate-900 p-4 rounded-full border border-white/5 mb-3 text-slate-400 shadow-inner">
