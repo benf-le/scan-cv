@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { normalizeCandidate } from '../../../types';
 import { mockCandidates } from '../../../utils/mockData';
 
+export async function GET() {
+  return NextResponse.json({
+    envConfigured: !!process.env.N8N_WEBHOOK_URL
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
