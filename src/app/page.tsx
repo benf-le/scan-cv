@@ -48,8 +48,7 @@ export default function HomePage() {
   const [processingStep, setProcessingStep] = useState(0);
   const [processingError, setProcessingError] = useState<string | null>(null);
   
-  // Environment Status (Checked on first API load)
-  const [isEnvConfigured, setIsEnvConfigured] = useState<boolean | null>(null);
+  // Environment Status
   const [forceMock, setForceMock] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -80,25 +79,6 @@ export default function HomePage() {
     }
   }, [isProcessing]);
 
-  // Initial check on backend config state
-  useEffect(() => {
-    const checkConfig = async () => {
-      try {
-        // Fetch to our endpoint with empty list or query param to inspect config
-        const response = await fetch('/api/process-cv?mock=true');
-        const data = await response.json();
-        setIsEnvConfigured(data.envConfigured);
-        if (!data.envConfigured) {
-          // If n8n URL is missing, force mock mode so they can test immediately
-          setForceMock(true);
-        }
-      } catch (e) {
-        setIsEnvConfigured(false);
-        setForceMock(true);
-      }
-    };
-    checkConfig();
-  }, []);
 
   // Set default selection when candidates are loaded
   useEffect(() => {
@@ -347,27 +327,8 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* CONNECTION & CONFIGURATION BAR */}
+        {/* DEMO / MOCK SWITCH */}
         <div className="flex flex-wrap items-center gap-3 bg-slate-900/60 border border-white/5 px-4 py-2.5 rounded-2xl backdrop-blur-xl">
-          <div className="flex items-center gap-2">
-            {isEnvConfigured === null ? (
-              <Loader2 className="w-3.5 h-3.5 text-slate-400 animate-spin" />
-            ) : isEnvConfigured ? (
-              <span className="flex h-2.5 w-2.5 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-              </span>
-            ) : (
-              <span className="h-2.5 w-2.5 rounded-full bg-amber-500"></span>
-            )}
-            <span className="text-xs font-semibold text-slate-300">
-              {isEnvConfigured === null ? 'Checking API...' : isEnvConfigured ? 'n8n Connected' : 'n8n Unconfigured'}
-            </span>
-          </div>
-
-          <div className="h-4 w-[1px] bg-white/10 hidden sm:block"></div>
-
-          {/* DEMO / MOCK SWITCH */}
           <div className="flex items-center gap-2">
             <label className="relative inline-flex items-center cursor-pointer">
               <input 
@@ -375,11 +336,10 @@ export default function HomePage() {
                 className="sr-only peer" 
                 checked={forceMock}
                 onChange={() => setForceMock(!forceMock)}
-                disabled={isEnvConfigured === false} // forced true if env missing
               />
               <div className="w-8 h-4.5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-300 after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white peer-checked:after:border-white"></div>
               <span className="ml-2 text-xs font-medium text-slate-300 select-none">
-                Demo Mode {isEnvConfigured === false && <span className="text-[10px] text-amber-500 font-bold">(Forced)</span>}
+                Demo Mode
               </span>
             </label>
           </div>

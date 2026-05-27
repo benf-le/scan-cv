@@ -2,12 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { normalizeCandidate } from '../../../types';
 import { mockCandidates } from '../../../utils/mockData';
 
-export async function GET() {
-  return NextResponse.json({
-    envConfigured: !!process.env.N8N_WEBHOOK_URL
-  });
-}
-
 export async function POST(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -44,9 +38,9 @@ export async function POST(req: NextRequest) {
 
     const n8nUrl = process.env.N8N_WEBHOOK_URL;
 
-    // Trigger mock simulation if explicitly requested, or if N8N URL is missing
-    if (useMock || !n8nUrl) {
-      console.log(`Running in mock mode. Files received: ${files.length}. URL configured: ${!!n8nUrl}`);
+    // Trigger mock simulation if explicitly requested
+    if (useMock) {
+      console.log(`Running in mock mode. Files received: ${files.length}.`);
       
       // Simulate network / AI processing delay
       await new Promise((resolve) => setTimeout(resolve, 2500));
@@ -84,6 +78,13 @@ export async function POST(req: NextRequest) {
         envConfigured: !!n8nUrl,
         data: results
       });
+    }
+
+    if (!n8nUrl) {
+      return NextResponse.json(
+        { error: 'n8n Webhook URL is not configured. Please add it to your environment variables or turn on Demo Mode.' },
+        { status: 500 }
+      );
     }
 
     // Proxy request to n8n Webhook
